@@ -339,7 +339,7 @@ define-command -hidden fzf -params 2..3 %{ evaluate-commands %sh{
     if [ ! -z "${kak_client_env_TMUX}" ]; then
         [ -z "${items_command##*Q*}" ] && items_command=$(echo $items_command | sed 's:$kind \(\w\):\$kind \"\1\":')
          [ "$(echo $callback | awk '{print $1}')" = "ctags-search" ] && items_command="$items_command | awk '!a[\$0]++'"
-        cmd="sh=$(command -v sh); SHELL=$sh; export SHELL; $preview_pos $items_command | fzf-tmux -d $tmux_height --expect ctrl-q $additional_flags > $tmp"
+        cmd="sh=$(command -v sh); SHELL=\$sh; export SHELL; $preview_pos $items_command | fzf-tmux -d $tmux_height --expect ctrl-q $additional_flags > $tmp"
     elif [ ! -z "${kak_opt_termcmd}" ]; then
         path=$(pwd)
         additional_flags=$(echo $additional_flags | sed 's:\$pos:\\\\\\\$pos:')

@@ -64,34 +64,68 @@ Best used with mapping like:
 fzf-mode %{ try %{ evaluate-commands 'enter-user-mode fzf' } }
 
 define-command -hidden fzf-vertical -params 2 %{
-    try %{
-        tmux-terminal-vertical kak -c %val{session} -e "%arg{1} %arg{2}"
-    } catch %{
-        tmux-new-vertical "%arg{1} %arg{2}"
+    try %sh{
+        if [ -n "$TMUX" ]; then
+            wincmd="tmux-terminal-vertical"
+        elif [ -n "$STY" ]; then
+            wincmd="screen-terminal-vertical"
+        else
+            exit
+        fi
+        printf "%s\n" "$wincmd kak -c %val{session} -e \"%arg{1} %arg{2}\""
+    } catch %sh{
+        if [ -n "$TMUX" ]; then
+            wincmd="tmux-new-vertical"
+        elif [ -n "$STY" ]; then
+            wincmd="screen-new-vertical"
+        else
+            exit
+        fi
+        printf "%s\n" "$wincmd \"%arg{1} %arg{2}\""
     }
 }
 
 define-command -hidden fzf-horizontal -params 2 %{
-    try %{
-        tmux-terminal-horizontal kak -c %val{session} -e "%arg{1} %arg{2}"
-    } catch %{
-        tmux-new-horizontal "%arg{1} %arg{2}"
+    try %sh{
+        if [ -n "$TMUX" ]; then
+            wincmd="tmux-terminal-horizontal"
+        elif [ -n "$STY" ]; then
+            wincmd="screen-terminal-horizontal"
+        else
+            exit
+        fi
+        printf "%s\n" "$wincmd kak -c %val{session} -e \"%arg{1} %arg{2}\""
+    } catch %sh{
+        if [ -n "$TMUX" ]; then
+            wincmd="tmux-new-horizontal"
+        elif [ -n "$STY" ]; then
+            wincmd="screen-new-horizontal"
+        else
+            exit
+        fi
+        printf "%s\n" "$wincmd \"%arg{1} %arg{2}\""
     }
 }
 
 define-command -hidden fzf-window -params 2 %{
     try %sh{
-        if [ -n "$kak_client_env_TMUX" ]; then
-            printf "%s\n" 'tmux-terminal-window kak -c %val{session} -e "%arg{1} %arg{2}"'
+        if [ -n "$TMUX" ]; then
+            wincmd="tmux-terminal-window"
+        elif [ -n "$STY" ]; then
+            wincmd="screen-terminal-window"
         else
-            printf "%s\n" 'x11-terminal kak -c %val{session} -e "%arg{1} %arg{2}"'
+            wincmd="x11-terminal"
         fi
+        printf "%s\n" "$wincmd kak -c %val{session} -e \"%arg{1} %arg{2}\""
     } catch %sh{
-        if [ -n "$kak_client_env_TMUX" ]; then
-            printf "%s\n" 'tmux-new-window "%arg{1} %arg{2}"'
+        if [ -n "$TMUX" ]; then
+            wincmd="tmux-new-window"
+        elif [ -n "$STY" ]; then
+            wincmd="screen-new-window"
         else
-            printf "%s\n" 'x11-new "%arg{1} %arg{2}"'
+            wincmd="x11-new"
         fi
+        printf "%s\n" "$wincmd \"%arg{1} %arg{2}\""
     }
 }
 
